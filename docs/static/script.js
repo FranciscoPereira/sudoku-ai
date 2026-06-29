@@ -115,15 +115,36 @@ function buildGrid() {
       const input = document.createElement("input");
       input.className = "cell";
       input.maxLength = 1;
+      input.inputMode = "numeric";
       input.dataset.r = r;
       input.dataset.c = c;
       input.addEventListener("input", (e) => {
+        if (fixedMask[r][c]) { e.target.value = currentGrid[r][c] || ""; return; }
         const v = e.target.value.replace(/[^1-9]/g, "");
         e.target.value = v;
         currentGrid[r][c] = v ? parseInt(v, 10) : 0;
+        highlightConflicts();
+        checkWin();
       });
+      input.addEventListener("keydown", (e) => handleCellKeydown(e, r, c));
       gridEl.appendChild(input);
     }
+  }
+}
+
+function handleCellKeydown(e, r, c) {
+  const moves = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+  if (moves[e.key]) {
+    e.preventDefault();
+    const [dr, dc] = moves[e.key];
+    const nr = Math.min(8, Math.max(0, r + dr));
+    const nc = Math.min(8, Math.max(0, c + dc));
+    const next = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+    if (next) next.focus();
+  } else if ((e.key === "Backspace" || e.key === "Delete") && !fixedMask[r][c]) {
+    currentGrid[r][c] = 0;
+    e.target.value = "";
+    highlightConflicts();
   }
 }
 
@@ -133,9 +154,56 @@ function renderGrid(grid, fixed) {
     const r = parseInt(cell.dataset.r, 10), c = parseInt(cell.dataset.c, 10);
     const v = grid[r][c];
     cell.value = v === 0 ? "" : v;
-    cell.classList.remove("fixed", "filled");
-    if (fixed && fixed[r][c]) cell.classList.add("fixed");
+    cell.classList.remove("fixed", "filled", "conflict");
+    cell.readOnly = false;
+    if (fixed && fixed[r][c]) {
+      cell.classList.add("fixed");
+      cell.readOnly = true;
+    } else if (v !== 0) {
+      cell.classList.add("filled");
+    }
   });
+  highlightConflicts();
+}
+
+// Live validation: any cell whose value collides with another cell in its
+// row, column or box gets the .conflict style, updated on every keystroke.
+function highlightConflicts() {
+  const conflictCells = new Set();
+  for (let i = 0; i < 9; i++) {
+    markDuplicates(conflictCells, [...Array(9).keys()].map((c) => [i, c]));
+    markDuplicates(conflictCells, [...Array(9).keys()].map((r) => [r, i]));
+  }
+  for (let br = 0; br < 9; br += 3) {
+    for (let bc = 0; bc < 9; bc += 3) {
+      const cells = [];
+      for (let i = br; i < br + 3; i++) for (let j = bc; j < bc + 3; j++) cells.push([i, j]);
+      markDuplicates(conflictCells, cells);
+    }
+  }
+  document.querySelectorAll(".cell").forEach((cell) => {
+    const r = parseInt(cell.dataset.r, 10), c = parseInt(cell.dataset.c, 10);
+    cell.classList.toggle("conflict", conflictCells.has(`${r},${c}`));
+  });
+}
+
+function markDuplicates(conflictCells, cellList) {
+  const seen = new Map();
+  for (const [r, c] of cellList) {
+    const v = currentGrid[r][c];
+    if (v === 0) continue;
+    if (!seen.has(v)) seen.set(v, []);
+    seen.get(v).push([r, c]);
+  }
+  for (const coords of seen.values()) {
+    if (coords.length > 1) coords.forEach(([r, c]) => conflictCells.add(`${r},${c}`));
+  }
+}
+
+function checkWin() {
+  if (Board.isComplete(currentGrid) && Board.conflictsCount(currentGrid) === 0) {
+    setStatus("🎉 Solved it yourself — nicely done!");
+  }
 }
 
 function buildMethodCards() {
@@ -199,6 +267,7 @@ function setStatus(text) {
 
 function renderResult(data) {
   const panel = document.getElementById("resultPanel");
+  currentGrid = data.grid.map((row) => row.slice());
   renderGrid(data.grid, fixedMask);
   const badge = data.solved
     ? '<span class="badge ok">SOLVED</span>'

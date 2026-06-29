@@ -104,8 +104,10 @@ main {
   background: var(--bg-input);
   color: var(--text);
 }
-.cell.fixed { color: var(--fixed); font-weight: 700; background: var(--fixed-bg); }
+.cell.fixed { color: var(--fixed); font-weight: 700; background: var(--fixed-bg); cursor: default; }
 .cell.filled { color: var(--filled); }
+.cell.conflict { background: var(--fail-bg) !important; color: var(--fail-text) !important; }
+.cell:focus { outline: 2px solid var(--accent); outline-offset: -2px; z-index: 1; position: relative; }
 .cell:nth-child(9n+3), .cell:nth-child(9n+6) { border-right: 2px solid var(--border-strong); }
 .cell:nth-child(n+19):nth-child(-n+27),
 .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--border-strong); }
