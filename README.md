@@ -1,0 +1,75 @@
+# Sudoku AI Lab
+
+A Sudoku solver implemented five different ways, plus a Flask website to
+run and compare them side by side.
+
+## Run it
+
+```bash
+cd sudoku-ai
+pip install -r requirements.txt
+python3 app.py
+# open http://127.0.0.1:5050
+```
+
+## The five approaches
+
+| Method | File | Type | Notes |
+|---|---|---|---|
+| Backtracking | `sudoku_ai/solvers/backtracking.py` | Classical CSP search | Ground-truth baseline, not a learning method |
+| Neural Net | `sudoku_ai/solvers/neural_net.py` | Supervised learning | From-scratch numpy net trained with **gradient descent + manual backpropagation** |
+| Q-Learning | `sudoku_ai/solvers/q_learning.py` | Reinforcement learning | Tabular RL, learns purely from trial-and-error rewards |
+| Genetic Algorithm | `sudoku_ai/solvers/genetic.py` | Evolutionary search | Population + selection + crossover + mutation |
+| Simulated Annealing | `sudoku_ai/solvers/simulated_annealing.py` | Local search | Single-trajectory temperature-controlled random walk |
+
+Each solver module has a detailed docstring explaining *why* the
+algorithm works the way it does — read those for the full explanation of
+gradient descent/backprop, the Q-learning update rule, GA operators, and
+the annealing acceptance criterion.
+
+### Why these five, and why not PPO
+
+Q-Learning was chosen over PPO as the RL example because it's the
+simplest algorithm that still demonstrates genuine reward-driven learning
+without needing a policy network, advantage estimation, or a clipped
+surrogate objective — that contrast (supervised gradient descent net vs.
+trial-and-error RL) is the pedagogically useful one. PPO would be a
+natural extension: replace the Q-table with a small policy network that
+outputs a digit distribution per cell, and train it with PPO's clipped
+objective using the same reward function defined in `q_learning.py`.
+
+Simulated Annealing was added alongside the Genetic Algorithm because
+both solve the same underlying optimization view of Sudoku (minimize
+`conflicts_count`, see `sudoku_ai/board.py`) but via fundamentally
+different search strategies — population-based vs. single-trajectory —
+which is a useful pairing for understanding metaheuristics in general.
+
+## Project layout
+
+```
+sudoku-ai/
+  app.py                  Flask app + API routes
+  sudoku_ai/
+    board.py              grid representation, validation, puzzle generation
+    solvers/
+      backtracking.py
+      neural_net.py
+      q_learning.py
+      genetic.py
+      simulated_annealing.py
+  templates/index.html
+  static/style.css, script.js
+```
+
+## Known limitations (by design, useful for learning)
+
+- The neural net alone can't guarantee a full solve on hard puzzles; it's
+  used to *guide* a backtracking search, similar to how policy networks
+  guide search in systems like AlphaZero.
+- Q-Learning's tabular state representation doesn't scale to the full
+  board, so it's run as a per-cell local policy — it will often leave a
+  few conflicts on harder puzzles, illustrating a real limitation of
+  vanilla RL on large combinatorial spaces.
+- The Genetic Algorithm and Simulated Annealing solvers are not
+  guaranteed to fully converge within the time budget; the website shows
+  the best (lowest-conflict) state found, not necessarily a full solve.

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sudoku AI Lab</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>Sudoku AI Lab</h1>
+  <p>Five ways to make a machine solve Sudoku: one classical baseline, and four learning-based AI approaches.</p>
+</header>
+
+<main>
+  <section class="board-section">
+    <div id="grid"></div>
+    <div class="controls">
+      <label>Clues: <input id="clues" type="number" min="20" max="60" value="32"></label>
+      <button id="generateBtn">Generate Puzzle</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+  </section>
+
+  <section class="methods-section">
+    <h2>Choose a solving method</h2>
+    <div class="method-grid" id="methodGrid"></div>
+    <div id="status"></div>
+    <div id="resultPanel"></div>
+  </section>
+</main>
+
+<script>
+  window.EXPLANATIONS = {{ explanations | tojson }};
+</script>
+<script src="/static/script.js"></script>
+</body>
+</html>
