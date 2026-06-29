@@ -22,6 +22,88 @@ const METHODS = [
   { id: "annealing", label: "Simulated Annealing" },
 ];
 
+// Longer write-ups shown in the info modal — mirrors the docstrings in
+// docs/static/solver_*.js and sudoku_ai/solvers/*.py, condensed for reading
+// on the page rather than in source.
+const DETAILS = {
+  backtracking: {
+    title: "Backtracking (baseline)",
+    body: `
+      <p><strong>Not a learning method</strong> — included as the ground-truth baseline so the
+      learning-based approaches below have something exact and fast to be compared against.</p>
+      <h4>Algorithm</h4>
+      <ol>
+        <li>Find the empty cell with the fewest legal candidates (the <em>MRV heuristic</em> — most-constrained-variable first, which prunes the search tree hard).</li>
+        <li>Compute its candidates: {1..9} minus values already used in its row, column and 3×3 box.</li>
+        <li>Try each candidate, recurse into the rest of the board.</li>
+        <li>If a branch leads to a dead end, undo ("backtrack") and try the next candidate.</li>
+      </ol>
+      <p>Because every move is checked against the rules of Sudoku before it's made, this always finds a valid solution (if one exists), in milliseconds.</p>`,
+  },
+  neural_net: {
+    title: "Neural Net — Gradient Descent + Backpropagation",
+    body: `
+      <p>A small feedforward network (243 → 32 → 9) is trained <strong>from scratch, in your browser</strong> — no ML library, so every matrix multiply and gradient is hand-written and inspectable in <code>solver_neural_net.js</code>.</p>
+      <h4>What it predicts</h4>
+      <p>Not a full solution in one shot — Sudoku isn't a smooth function. Instead, given a cell's 27-cell neighbourhood (its row, column and box, one-hot encoded), the net predicts a probability distribution over digits 1–9 for that cell. The solver repeatedly fills in whichever empty cell the net is most confident about, similar to how a policy network can guide a search algorithm (e.g. AlphaZero's policy net proposing moves).</p>
+      <h4>Training — gradient descent &amp; backprop, by hand</h4>
+      <pre>forward:  z1 = X·W1 + b1 ;  a1 = ReLU(z1)
+          z2 = a1·W2 + b2 ;  p = softmax(z2)
+loss:     L = -mean(log p[correct class])
+backward: dz2 = p - one_hot(y)
+          dW2 = a1ᵗ·dz2 ,  db2 = mean(dz2)
+          da1 = dz2·W2ᵗ ,  dz1 = da1 · (z1 &gt; 0)
+          dW1 = Xᵗ·dz1 ,  db1 = mean(dz1)
+update:   W -= learning_rate × dW   (descend the loss surface)</pre>
+      <p>Each "Solve" click trains a fresh network on freshly generated puzzles, then uses it to guide a backtracking-style fill — if a top guess leads to a dead end, the next-most-confident digit is tried.</p>`,
+  },
+  q_learning: {
+    title: "Reinforcement Learning — Tabular Q-Learning",
+    body: `
+      <p>No labelled answers are ever given to this agent — it learns purely from trial-and-error reward signals, which is the core idea that separates reinforcement learning from the supervised neural net above.</p>
+      <h4>Why Q-Learning instead of PPO</h4>
+      <p>PPO needs a policy network, advantage estimation and a clipped surrogate objective — a lot of moving parts. Q-Learning is the simplest algorithm that still demonstrates the essential RL loop, which makes the contrast with supervised gradient descent clearer.</p>
+      <h4>MDP formulation</h4>
+      <ul>
+        <li><strong>State</strong>: a summary of which digits are already used in the focal cell's row, column and box.</li>
+        <li><strong>Action</strong>: choose a digit 1–9 to place in that cell.</li>
+        <li><strong>Reward</strong>: +1 if the placement creates zero conflicts; otherwise −(number of conflicts created); +10 bonus if the whole board ends up solved.</li>
+      </ul>
+      <h4>The learning rule</h4>
+      <pre>Q(s, a) ← Q(s, a) + α · [ r + γ·max_a′ Q(s′, a′) − Q(s, a) ]</pre>
+      <p>This is off-policy temporal-difference learning: after acting, the agent nudges its value estimate toward the observed reward plus its best guess at future value. Over many episodes with decaying epsilon-greedy exploration, the Q-table converges toward values that avoid conflicts — without ever being told the rules of Sudoku directly.</p>
+      <p><strong>Limitation, by design:</strong> a per-cell tabular policy doesn't scale to the full board's combinatorics, so this often leaves some conflicts on harder puzzles — a real, honest limitation of vanilla RL on large discrete spaces.</p>`,
+  },
+  genetic: {
+    title: "Genetic Algorithm",
+    body: `
+      <p>Inspired by biological evolution: a <em>population</em> of candidate grids evolves over generations through selection, crossover and mutation, guided only by a fitness function — no gradients, no derivatives.</p>
+      <h4>Representation</h4>
+      <p>Each chromosome is a full 9×9 grid. Given clues are frozen; each empty 3×3 box is filled with a random permutation of the missing digits, which automatically satisfies the box constraint and leaves row/column conflicts as the only thing left to evolve away.</p>
+      <h4>Fitness</h4>
+      <p><code>fitness = -conflicts_count(grid)</code> — maximising fitness means minimising rule violations; 0 conflicts = solved.</p>
+      <h4>Operators</h4>
+      <ul>
+        <li><strong>Selection</strong>: tournament selection — sample k random individuals, keep the fittest.</li>
+        <li><strong>Crossover</strong>: each child takes each of its 9 rows from one of two parents (rows are already internally box-consistent, so swapping whole rows preserves useful structure).</li>
+        <li><strong>Mutation</strong>: with small probability, swap two free cells within the same box, keeping the box constraint intact while exploring new states.</li>
+      </ul>`,
+  },
+  annealing: {
+    title: "Simulated Annealing",
+    body: `
+      <p>Where the Genetic Algorithm explores with a population, Simulated Annealing explores with a <em>single</em> solution taking a random walk — a useful contrast for understanding metaheuristics in general.</p>
+      <h4>Algorithm</h4>
+      <ol>
+        <li>Start from a random assignment of the free cells (box-consistent, same trick as the GA).</li>
+        <li>Propose a neighbour by swapping two free cells inside the same box.</li>
+        <li>Let <code>delta = conflicts(neighbour) - conflicts(current)</code>. If delta ≤ 0, accept. Otherwise accept anyway with probability <code>exp(-delta / T)</code> — this lets the search escape local optima early on.</li>
+        <li>Slowly cool: <code>T *= cooling_rate</code> each step, so the search becomes greedier over time.</li>
+      </ol>
+      <p>Stop when conflicts reach 0 (solved) or the step/time budget runs out. The temperature schedule is what makes this different from plain hill-climbing: high T early means broad exploration; low T late means fine-tuned convergence.</p>`,
+  },
+};
+
 let currentGrid = Array.from({ length: 9 }, () => Array(9).fill(0));
 let fixedMask = Array.from({ length: 9 }, () => Array(9).fill(false));
 
@@ -63,13 +145,33 @@ function buildMethodCards() {
     const card = document.createElement("div");
     card.className = "method-card";
     card.innerHTML = `
-      <h3>${m.label}</h3>
+      <div class="method-card-header">
+        <h3>${m.label}</h3>
+        <button class="info-btn" data-info="${m.id}" aria-label="About ${m.label}" title="About this algorithm">i</button>
+      </div>
       <p>${EXPLANATIONS[m.id]}</p>
       <button data-method="${m.id}">Solve</button>
     `;
-    card.querySelector("button").addEventListener("click", () => solveWith(m.id));
+    card.querySelector("button[data-method]").addEventListener("click", () => solveWith(m.id));
+    card.querySelector(".info-btn").addEventListener("click", () => openInfoModal(m.id));
     container.appendChild(card);
   });
+}
+
+function openInfoModal(id) {
+  const details = DETAILS[id];
+  if (!details) return;
+  document.getElementById("infoModalTitle").innerHTML = details.title;
+  document.getElementById("infoModalBody").innerHTML = details.body;
+  const overlay = document.getElementById("infoModalOverlay");
+  overlay.classList.add("open");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
+function closeInfoModal() {
+  const overlay = document.getElementById("infoModalOverlay");
+  overlay.classList.remove("open");
+  overlay.setAttribute("aria-hidden", "true");
 }
 
 function generatePuzzle() {
@@ -147,6 +249,13 @@ async function solveWith(method) {
 
 document.getElementById("generateBtn").addEventListener("click", generatePuzzle);
 document.getElementById("clearBtn").addEventListener("click", clearGrid);
+document.getElementById("infoModalClose").addEventListener("click", closeInfoModal);
+document.getElementById("infoModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "infoModalOverlay") closeInfoModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeInfoModal();
+});
 
 buildGrid();
 buildMethodCards();

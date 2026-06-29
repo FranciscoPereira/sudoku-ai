@@ -35,6 +35,16 @@
   </section>
 </main>
 
+<div id="infoModalOverlay" class="info-modal-overlay" aria-hidden="true">
+  <div class="info-modal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+    <div class="info-modal-header">
+      <h3 id="infoModalTitle"></h3>
+      <button id="infoModalClose" class="info-modal-close" aria-label="Close">×</button>
+    </div>
+    <div id="infoModalBody" class="info-modal-body"></div>
+  </div>
+</div>
+
 <footer>
   <p>Source on <a href="https://github.com/FranciscoPereira/sudoku-ai" target="_blank" rel="noopener">GitHub</a>. Backtracking baseline, a from-scratch neural net trained with gradient descent + backpropagation, tabular Q-learning, a genetic algorithm, and simulated annealing — all ported to plain JavaScript so this page works without a server.</p>
 </footer>
