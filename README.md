@@ -1,9 +1,26 @@
 # Sudoku AI Lab
 
-A Sudoku solver implemented five different ways, plus a Flask website to
-run and compare them side by side.
+A Sudoku solver implemented five different ways, with two front ends:
+a Python/Flask app, and a static client-side site (light/dark mode)
+published on GitHub Pages.
+
+**Live demo:** https://franciscopereira.github.io/sudoku-ai/
 
 ## Run it
+
+### Static site (no install, runs entirely in the browser)
+
+```bash
+cd sudoku-ai/docs
+python3 -m http.server 5051
+# open http://127.0.0.1:5051
+```
+
+All five solvers are ported to plain JavaScript in `docs/static/` —
+the neural net trains itself on the fly with gradient descent run in
+your browser.
+
+### Flask app (Python solvers, server-side)
 
 ```bash
 cd sudoku-ai
@@ -48,7 +65,7 @@ which is a useful pairing for understanding metaheuristics in general.
 
 ```
 sudoku-ai/
-  app.py                  Flask app + API routes
+  app.py                  Flask app + API routes (server-side Python solvers)
   sudoku_ai/
     board.py              grid representation, validation, puzzle generation
     solvers/
@@ -59,6 +76,15 @@ sudoku-ai/
       simulated_annealing.py
   templates/index.html
   static/style.css, script.js
+
+  docs/                   static site published via GitHub Pages
+    index.html            light/dark theme toggle, persisted in localStorage
+    static/
+      board.js            JS port of sudoku_ai/board.py
+      solver_*.js          JS port of each solver, same algorithms/comments
+      theme.js             light/dark mode logic
+      script.js            UI glue
+      style.css            CSS variables for both themes
 ```
 
 ## Known limitations (by design, useful for learning)

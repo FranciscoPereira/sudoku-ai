@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudoku AI Lab</title>
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<header>
+  <div class="header-row">
+    <div>
+      <h1>Sudoku AI Lab</h1>
+      <p>Five ways to make a machine solve Sudoku: one classical baseline, and four learning-based AI approaches. Everything runs locally in your browser.</p>
+    </div>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">🌙</button>
+  </div>
+</header>
+
+<main>
+  <section class="board-section">
+    <div id="grid"></div>
+    <div class="controls">
+      <label>Clues: <input id="clues" type="number" min="20" max="60" value="32"></label>
+      <button id="generateBtn">Generate Puzzle</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+  </section>
+
+  <section class="methods-section">
+    <h2>Choose a solving method</h2>
+    <div class="method-grid" id="methodGrid"></div>
+    <div id="status"></div>
+    <div id="resultPanel"></div>
+  </section>
+</main>
+
+<footer>
+  <p>Source on <a href="https://github.com/FranciscoPereira/sudoku-ai" target="_blank" rel="noopener">GitHub</a>. Backtracking baseline, a from-scratch neural net trained with gradient descent + backpropagation, tabular Q-learning, a genetic algorithm, and simulated annealing — all ported to plain JavaScript so this page works without a server.</p>
+</footer>
+
+<script src="static/board.js"></script>
+<script src="static/solver_backtracking.js"></script>
+<script src="static/solver_genetic.js"></script>
+<script src="static/solver_annealing.js"></script>
+<script src="static/solver_neural_net.js"></script>
+<script src="static/solver_q_learning.js"></script>
+<script src="static/theme.js"></script>
+<script src="static/script.js"></script>
+</body>
+</html>
