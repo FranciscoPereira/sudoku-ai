@@ -38,7 +38,11 @@ const DETAILS = {
         <li>Try each candidate, recurse into the rest of the board.</li>
         <li>If a branch leads to a dead end, undo ("backtrack") and try the next candidate.</li>
       </ol>
-      <p>Because every move is checked against the rules of Sudoku before it's made, this always finds a valid solution (if one exists), in milliseconds.</p>`,
+      <p>Because every move is checked against the rules of Sudoku before it's made, this always finds a valid solution (if one exists), in milliseconds.</p>
+      <h4>Where you'll see this in the real world</h4>
+      <p>Compilers' type checkers, SAT/SMT solvers used in chip verification, route planners, and the constraint solvers behind scheduling and resource-allocation software all lean on the same idea: prune the search space using the rules of the problem, only backtrack when forced to.</p>
+      <h4>Key takeaway</h4>
+      <p>Not every problem needs "AI" in the learning sense — if you can encode the rules exactly, exact search beats anything that has to learn them. This baseline exists precisely to make that point honest.</p>`,
   },
   neural_net: {
     title: "Neural Net — Gradient Descent + Backpropagation",
@@ -55,7 +59,11 @@ backward: dz2 = p - one_hot(y)
           da1 = dz2·W2ᵗ ,  dz1 = da1 · (z1 &gt; 0)
           dW1 = Xᵗ·dz1 ,  db1 = mean(dz1)
 update:   W -= learning_rate × dW   (descend the loss surface)</pre>
-      <p>Each "Solve" click trains a fresh network on freshly generated puzzles, then uses it to guide a backtracking-style fill — if a top guess leads to a dead end, the next-most-confident digit is tried.</p>`,
+      <p>Each "Solve" click trains a fresh network on freshly generated puzzles, then uses it to guide a backtracking-style fill — if a top guess leads to a dead end, the next-most-confident digit is tried.</p>
+      <h4>Where you'll see this in the real world</h4>
+      <p>This exact loop — forward pass, compute loss, backpropagate, gradient-descend the weights — is how every modern neural net is trained, from a digit-recognising CNN to GPT-scale language models. The math doesn't change at scale; only the size of the matrices and the cleverness of the architecture do.</p>
+      <h4>Key takeaway</h4>
+      <p>A neural net learns a <em>statistical pattern</em> ("digits like this tend to go here"), not a logical rule. That's why it needs a search algorithm bolted on to guarantee correctness — a recurring theme in real systems that pair a learned model with a verifier or planner.</p>`,
   },
   q_learning: {
     title: "Reinforcement Learning — Tabular Q-Learning",
@@ -72,7 +80,11 @@ update:   W -= learning_rate × dW   (descend the loss surface)</pre>
       <h4>The learning rule</h4>
       <pre>Q(s, a) ← Q(s, a) + α · [ r + γ·max_a′ Q(s′, a′) − Q(s, a) ]</pre>
       <p>This is off-policy temporal-difference learning: after acting, the agent nudges its value estimate toward the observed reward plus its best guess at future value. Over many episodes with decaying epsilon-greedy exploration, the Q-table converges toward values that avoid conflicts — without ever being told the rules of Sudoku directly.</p>
-      <p><strong>Limitation, by design:</strong> a per-cell tabular policy doesn't scale to the full board's combinatorics, so this often leaves some conflicts on harder puzzles — a real, honest limitation of vanilla RL on large discrete spaces.</p>`,
+      <p><strong>Limitation, by design:</strong> a per-cell tabular policy doesn't scale to the full board's combinatorics, so this often leaves some conflicts on harder puzzles — a real, honest limitation of vanilla RL on large discrete spaces.</p>
+      <h4>Where you'll see this in the real world</h4>
+      <p>The same reward-driven trial-and-error loop trains game-playing agents (Atari, AlphaGo's self-play), robot control policies, recommendation systems that learn from clicks, and LLM fine-tuning via RLHF — anywhere there's no labelled "correct answer" but you can score how good an outcome was.</p>
+      <h4>Key takeaway</h4>
+      <p>RL doesn't need anyone to tell it the right move — only whether a move was good or bad. That's powerful (it generalises to problems with no training data) and also why it's notoriously sample-inefficient: this agent needs hundreds of episodes to learn rules that backtracking enforces from line one.</p>`,
   },
   genetic: {
     title: "Genetic Algorithm",
@@ -87,7 +99,11 @@ update:   W -= learning_rate × dW   (descend the loss surface)</pre>
         <li><strong>Selection</strong>: tournament selection — sample k random individuals, keep the fittest.</li>
         <li><strong>Crossover</strong>: each child takes each of its 9 rows from one of two parents (rows are already internally box-consistent, so swapping whole rows preserves useful structure).</li>
         <li><strong>Mutation</strong>: with small probability, swap two free cells within the same box, keeping the box constraint intact while exploring new states.</li>
-      </ul>`,
+      </ul>
+      <h4>Where you'll see this in the real world</h4>
+      <p>Evolutionary algorithms are used for neural architecture search, antenna and aerodynamic shape design, scheduling/timetabling, and any optimisation problem where the objective is computable but not differentiable, so gradient descent doesn't apply.</p>
+      <h4>Key takeaway</h4>
+      <p>No gradient, no problem — a GA only needs to be able to <em>score</em> a candidate, not differentiate it. The tradeoff is that it can plateau near (but not quite at) the optimum, which is exactly what you'll often see it do here.</p>`,
   },
   annealing: {
     title: "Simulated Annealing",
@@ -100,9 +116,42 @@ update:   W -= learning_rate × dW   (descend the loss surface)</pre>
         <li>Let <code>delta = conflicts(neighbour) - conflicts(current)</code>. If delta ≤ 0, accept. Otherwise accept anyway with probability <code>exp(-delta / T)</code> — this lets the search escape local optima early on.</li>
         <li>Slowly cool: <code>T *= cooling_rate</code> each step, so the search becomes greedier over time.</li>
       </ol>
-      <p>Stop when conflicts reach 0 (solved) or the step/time budget runs out. The temperature schedule is what makes this different from plain hill-climbing: high T early means broad exploration; low T late means fine-tuned convergence.</p>`,
+      <p>Stop when conflicts reach 0 (solved) or the step/time budget runs out. The temperature schedule is what makes this different from plain hill-climbing: high T early means broad exploration; low T late means fine-tuned convergence.</p>
+      <h4>Where you'll see this in the real world</h4>
+      <p>Chip placement and routing, the travelling salesman problem and logistics routing, protein folding energy minimisation, and early neural-network training schedules (simulated annealing predates and inspired some learning-rate schedules) all use this same accept-worse-moves-while-hot, cool-down-over-time idea.</p>
+      <h4>Key takeaway</h4>
+      <p>The single most important idea in local search: pure greedy hill-climbing gets stuck in the first local optimum it finds. Annealing's willingness to occasionally accept a worse state is precisely what lets it escape — the same exploration/exploitation tradeoff that shows up in RL's epsilon-greedy strategy above.</p>`,
   },
 };
+
+// Used to build the comparison table — one row per method, summarising the
+// paradigm each belongs to so learners can see the spectrum at a glance.
+const COMPARISON = [
+  { id: "backtracking", paradigm: "Exact search (CSP)", learnsFrom: "Nothing — hand-coded rules", guarantee: "Always correct if solvable", speed: "Milliseconds", realWorld: "Compilers, SAT solvers, route planners" },
+  { id: "neural_net", paradigm: "Supervised learning", learnsFrom: "Labelled (puzzle → solution) examples", guarantee: "No — needs a search to verify", speed: "Seconds (trains, then guides search)", realWorld: "Image/speech recognition, LLMs" },
+  { id: "q_learning", paradigm: "Reinforcement learning", learnsFrom: "Trial-and-error reward signal", guarantee: "No — best-effort policy", speed: "Seconds (many episodes)", realWorld: "Game-playing agents, robotics, RLHF" },
+  { id: "genetic", paradigm: "Evolutionary computation", learnsFrom: "A fitness score, no gradient needed", guarantee: "No — best found in time budget", speed: "Seconds (many generations)", realWorld: "Architecture search, design optimisation" },
+  { id: "annealing", paradigm: "Local search / metaheuristic", learnsFrom: "A cost score, no gradient needed", guarantee: "No — best found in time budget", speed: "Milliseconds–seconds", realWorld: "Chip routing, logistics, TSP" },
+];
+
+const GLOSSARY = [
+  { term: "Gradient Descent", def: "An optimisation method that repeatedly nudges parameters in the direction that most reduces a loss function — like walking downhill on a landscape shaped by how wrong your predictions are." },
+  { term: "Backpropagation", def: "The algorithm that computes how much each weight in a neural network contributed to the error, by applying the chain rule backward from the output layer to the input layer." },
+  { term: "Loss function", def: "A single number measuring how wrong a model's predictions are. Training is the process of changing parameters to make this number smaller." },
+  { term: "Supervised learning", def: "Learning from labelled examples (input → correct output pairs). The neural net here is supervised: trained on (puzzle, solution) pairs." },
+  { term: "Reinforcement learning (RL)", def: "Learning by interacting with an environment and receiving reward signals, with no labelled correct answers — only feedback on how good an action turned out to be." },
+  { term: "Q-Learning", def: "A reinforcement learning algorithm that learns the expected long-term value, Q(state, action), of taking a given action in a given state, then acts greedily with respect to it." },
+  { term: "Policy", def: "The strategy an RL agent follows to decide actions — a mapping from states to actions (or a probability distribution over actions)." },
+  { term: "Exploration vs. exploitation", def: "The core RL tradeoff between trying new, possibly-better actions (exploration) and sticking with the best-known action so far (exploitation). Epsilon-greedy and annealing's temperature both manage this tradeoff." },
+  { term: "Genetic Algorithm (GA)", def: "An optimisation technique modelled on natural selection: a population of candidate solutions evolves via selection, crossover and mutation, guided by a fitness function." },
+  { term: "Fitness function", def: "The score a genetic algorithm uses to judge how good a candidate solution is — the GA equivalent of a (negated) loss function, but it doesn't need to be differentiable." },
+  { term: "Simulated Annealing", def: "An optimisation technique that takes a random walk through candidate solutions, initially accepting worse moves freely (high 'temperature') and becoming progressively greedier as it 'cools'." },
+  { term: "Local optimum", def: "A solution that's better than all its immediate neighbours but not the best possible solution overall — the trap that pure greedy search and hill-climbing fall into." },
+  { term: "Constraint satisfaction problem (CSP)", def: "A problem defined by variables, their possible values, and constraints between them. Sudoku is a classic CSP: 81 variables, domain {1..9}, row/column/box constraints." },
+  { term: "Backtracking", def: "A search strategy that builds a solution incrementally and abandons ('backtracks from') a partial solution as soon as it's determined that it cannot be completed validly." },
+  { term: "Overfitting", def: "When a model learns patterns specific to its training data rather than general rules, and so performs worse on new, unseen data." },
+  { term: "Hyperparameter", def: "A configuration value set before training begins (like learning rate, population size, or temperature) rather than learned from data." },
+];
 
 let currentGrid = Array.from({ length: 9 }, () => Array(9).fill(0));
 let fixedMask = Array.from({ length: 9 }, () => Array(9).fill(false));
@@ -242,6 +291,38 @@ function closeInfoModal() {
   overlay.setAttribute("aria-hidden", "true");
 }
 
+function buildCompareTable() {
+  const table = document.getElementById("compareTable");
+  const labelById = Object.fromEntries(METHODS.map((m) => [m.id, m.label]));
+  const headRow = `<tr><th>Method</th><th>Paradigm</th><th>Learns from</th><th>Guarantees a solution?</th><th>Typical speed</th><th>Real-world examples</th></tr>`;
+  const bodyRows = COMPARISON.map((row) => `
+    <tr>
+      <td><strong>${labelById[row.id]}</strong></td>
+      <td>${row.paradigm}</td>
+      <td>${row.learnsFrom}</td>
+      <td>${row.guarantee}</td>
+      <td>${row.speed}</td>
+      <td>${row.realWorld}</td>
+    </tr>`).join("");
+  table.innerHTML = `<thead>${headRow}</thead><tbody>${bodyRows}</tbody>`;
+}
+
+function openGlossaryModal() {
+  const body = document.getElementById("glossaryModalBody");
+  body.innerHTML = `<dl class="glossary-list">${GLOSSARY.map(
+    (g) => `<dt>${g.term}</dt><dd>${g.def}</dd>`
+  ).join("")}</dl>`;
+  const overlay = document.getElementById("glossaryModalOverlay");
+  overlay.classList.add("open");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
+function closeGlossaryModal() {
+  const overlay = document.getElementById("glossaryModalOverlay");
+  overlay.classList.remove("open");
+  overlay.setAttribute("aria-hidden", "true");
+}
+
 function generatePuzzle() {
   const clues = parseInt(document.getElementById("clues").value, 10) || 32;
   setStatus("Generating puzzle...");
@@ -322,10 +403,16 @@ document.getElementById("infoModalClose").addEventListener("click", closeInfoMod
 document.getElementById("infoModalOverlay").addEventListener("click", (e) => {
   if (e.target.id === "infoModalOverlay") closeInfoModal();
 });
+document.getElementById("glossaryBtn").addEventListener("click", openGlossaryModal);
+document.getElementById("glossaryModalClose").addEventListener("click", closeGlossaryModal);
+document.getElementById("glossaryModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "glossaryModalOverlay") closeGlossaryModal();
+});
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeInfoModal();
+  if (e.key === "Escape") { closeInfoModal(); closeGlossaryModal(); }
 });
 
 buildGrid();
 buildMethodCards();
+buildCompareTable();
 generatePuzzle();

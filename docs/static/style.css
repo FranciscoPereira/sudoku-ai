@@ -68,6 +68,13 @@ header {
 header h1 { margin: 0 0 6px; font-size: 26px; }
 header p { margin: 0; color: var(--text-muted); max-width: 640px; }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .theme-toggle {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -77,8 +84,17 @@ header p { margin: 0; color: var(--text-muted); max-width: 640px; }
   font-size: 18px;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 0;
 }
 .theme-toggle:hover { background: var(--secondary); }
+
+.intro-section {
+  padding: 22px 32px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.intro-section h2 { margin: 0 0 8px; font-size: 18px; }
+.intro-section p { margin: 0; color: var(--text-muted); max-width: 880px; line-height: 1.6; font-size: 14px; }
 
 main {
   display: flex;
@@ -86,6 +102,63 @@ main {
   padding: 28px 32px;
   flex-wrap: wrap;
   align-items: flex-start;
+}
+
+.board-hint {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+.compare-section {
+  padding: 8px 32px 28px;
+}
+.compare-section h2 { margin: 0 0 6px; font-size: 18px; }
+.compare-intro { margin: 0 0 14px; color: var(--text-muted); font-size: 13.5px; max-width: 760px; }
+
+.table-wrap { overflow-x: auto; }
+.compare-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+  font-size: 13px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.compare-table th, .compare-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.compare-table th {
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.compare-table tbody tr:last-child td { border-bottom: none; }
+.compare-table td:first-child { color: var(--text); }
+
+.glossary-list { margin: 0; }
+.glossary-list dt {
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 14px;
+  font-size: 14px;
+}
+.glossary-list dt:first-child { margin-top: 0; }
+.glossary-list dd {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  line-height: 1.5;
 }
 
 .board-section { flex: 0 0 auto; }

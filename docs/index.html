@@ -11,11 +11,27 @@
   <div class="header-row">
     <div>
       <h1>Sudoku AI Lab</h1>
-      <p>Five ways to make a machine solve Sudoku: one classical baseline, and four learning-based AI approaches. Everything runs locally in your browser.</p>
+      <p>Learn how five major AI paradigms actually work, using Sudoku as the worked example. Everything runs locally in your browser — open the console, read the code, change a number.</p>
     </div>
-    <button id="themeToggle" class="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">🌙</button>
+    <div class="header-actions">
+      <button id="glossaryBtn" class="secondary" title="Glossary of AI terms">📖 Glossary</button>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">🌙</button>
+    </div>
   </div>
 </header>
+
+<section class="intro-section">
+  <h2>Why Sudoku to learn AI?</h2>
+  <p>
+    Sudoku is small enough to fit on one screen, has a single unambiguous correct answer, and is
+    <em>hard for brute force but easy to verify</em> — exactly the properties that make a problem a good
+    teaching example for AI. The same five families of techniques used here (exact search, supervised
+    learning, reinforcement learning, evolutionary computation, and local search) are the same families
+    used in production systems for everything from chip design to drug discovery to game-playing agents.
+    Pick a method below, click <strong>Solve</strong> to watch it work, click the <strong>(i)</strong> button
+    to read how and why, or play the puzzle yourself first to feel why it's hard for a computer too.
+  </p>
+</section>
 
 <main>
   <section class="board-section">
@@ -25,6 +41,7 @@
       <button id="generateBtn">Generate Puzzle</button>
       <button id="clearBtn" class="secondary">Clear</button>
     </div>
+    <p class="board-hint">Play it yourself: click a cell, type a digit, arrow keys to move. Clue cells (blue) are locked. Conflicts turn red live.</p>
   </section>
 
   <section class="methods-section">
@@ -35,6 +52,14 @@
   </section>
 </main>
 
+<section class="compare-section">
+  <h2>How the five approaches compare</h2>
+  <p class="compare-intro">The same question — "what digit goes here?" — answered five structurally different ways. This is the spectrum of AI problem-solving in miniature.</p>
+  <div class="table-wrap">
+    <table class="compare-table" id="compareTable"></table>
+  </div>
+</section>
+
 <div id="infoModalOverlay" class="info-modal-overlay" aria-hidden="true">
   <div class="info-modal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
     <div class="info-modal-header">
@@ -42,6 +67,16 @@
       <button id="infoModalClose" class="info-modal-close" aria-label="Close">×</button>
     </div>
     <div id="infoModalBody" class="info-modal-body"></div>
+  </div>
+</div>
+
+<div id="glossaryModalOverlay" class="info-modal-overlay" aria-hidden="true">
+  <div class="info-modal" role="dialog" aria-modal="true" aria-labelledby="glossaryModalTitle">
+    <div class="info-modal-header">
+      <h3 id="glossaryModalTitle">Glossary of AI terms</h3>
+      <button id="glossaryModalClose" class="info-modal-close" aria-label="Close">×</button>
+    </div>
+    <div id="glossaryModalBody" class="info-modal-body"></div>
   </div>
 </div>
 
