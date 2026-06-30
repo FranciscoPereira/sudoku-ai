@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Quest: Sudoku Edition</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
+<header class="quest-header">
+  <div class="quest-header-inner">
+    <div class="quest-title">
+      <h1>🧩 AI Quest: Sudoku Edition</h1>
+      <p>Five missions. Five AI superpowers. Watch each one think, live.</p>
+    </div>
+    <div class="quest-score">
+      <div class="xp-pill"><span id="xpValue">0</span> XP</div>
+      <div class="badges" id="badgeRow"></div>
+    </div>
+  </div>
+  <nav class="quest-nav">
+    <a href="../index.html">← Back to the AI Lab (technical version)</a>
+  </nav>
+</header>
+
+<main class="quest-main">
+  <section class="mission-map" id="missionMap" aria-label="Missions"></section>
+
+  <section class="mission-stage">
+    <div class="stage-board-wrap">
+      <div id="miniGrid" class="mini-grid"></div>
+      <div class="stage-readout">
+        <div id="stageStat1" class="stat"></div>
+        <div id="stageStat2" class="stat"></div>
+      </div>
+    </div>
+
+    <div class="stage-panel">
+      <h2 id="stageTitle">Pick a mission to begin</h2>
+      <p id="stageTagline" class="stage-tagline"></p>
+      <div id="stageBody" class="stage-body"></div>
+
+      <div class="stage-controls">
+        <label class="speed-label" id="speedWrap" style="display:none;">
+          Speed
+          <input id="speedSlider" type="range" min="10" max="300" value="80">
+        </label>
+        <button id="runBtn" class="run-btn" disabled>Pick a mission first</button>
+      </div>
+
+      <div id="stageLog" class="stage-log" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="quest-footer">
+  <p>Same algorithms, same code — <a href="https://github.com/FranciscoPereira/sudoku-ai" target="_blank" rel="noopener">source on GitHub</a>. The serious write-ups (math, formulas, comparison table, glossary) live on the <a href="../index.html">AI Lab</a> page.</p>
+</footer>
+
+<script src="../static/board.js"></script>
+<script src="../static/solver_genetic.js"></script>
+<script src="../static/solver_neural_net.js"></script>
+<script src="../static/solver_q_learning.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
